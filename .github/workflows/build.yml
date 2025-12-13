@@ -49,6 +49,22 @@ jobs:
               cp /etc/yum.repos.d/ubi.repo "$ROOTFS_DIR"/etc/yum.repos.d/
               dnf -y --installroot="$ROOTFS_DIR" clean all
 
+          - name: ubuntu-24.04
+            image: ubuntu:rolling
+            build: |
+              apt-get -y update
+              apt-get -y install debootstrap xz-utils
+              debootstrap --include=systemd,dbus --variant=minbase noble "$ROOTFS_DIR"
+              chroot "$ROOTFS_DIR" /bin/bash -c "apt-get clean"
+
+          - name: ubuntu-25.10
+            image: ubuntu:rolling
+            build: |
+              apt-get -y update
+              apt-get -y install debootstrap xz-utils
+              debootstrap --include=systemd,dbus --variant=minbase questing "$ROOTFS_DIR"
+              chroot "$ROOTFS_DIR" /bin/bash -c "apt-get clean"
+
     container:
       image: ${{ matrix.distro.image }}
 
