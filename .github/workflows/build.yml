@@ -22,6 +22,14 @@ jobs:
               dnf --installroot="$ROOTFS_DIR" config-manager --set-enabled crb
               dnf -y --installroot="$ROOTFS_DIR" clean all
 
+          - name: debian-13
+            image: debian:sid
+            build: |
+              apt-get -y update
+              apt-get -y install debootstrap xz-utils
+              debootstrap --include=systemd,dbus --variant=minbase trixie "$ROOTFS_DIR"
+              chroot "$ROOTFS_DIR" /bin/bash -c "apt-get clean"
+
           - name: debian-sid
             image: debian:sid
             build: |
@@ -29,6 +37,15 @@ jobs:
               apt-get -y install debootstrap xz-utils
               debootstrap --include=systemd,dbus --variant=minbase sid "$ROOTFS_DIR"
               chroot "$ROOTFS_DIR" /bin/bash -c "apt-get clean"
+
+          - name: fedora-43
+            image: quay.io/fedora/fedora:43
+            build: |
+              dnf -y --releasever=43 --installroot="$ROOTFS_DIR" \
+                --use-host-config --setopt=install_weak_deps=0 \
+                --repo=fedora --repo=updates install \
+                passwd dnf fedora-release nano util-linux systemd systemd-networkd
+              dnf -y --installroot="$ROOTFS_DIR" clean all
 
           - name: fedora-rawhide
             image: quay.io/fedora/fedora:rawhide
