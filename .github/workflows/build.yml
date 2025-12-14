@@ -94,7 +94,7 @@ jobs:
         run: ${{ matrix.distro.build }}
 
       - name: Prepare tarball
-        run: tar -C "$ROOTFS_DIR" -cJf "$TARBALL" .
+        run: tar -C "$ROOTFS_DIR" -cvJf "$TARBALL" .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
