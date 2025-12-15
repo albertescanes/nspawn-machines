@@ -1,0 +1,104 @@
+name: Build rootfs
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 11 * * *"
+
+jobs:
+  build-rootfs:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        distro:
+          - name: centos-10
+            image: quay.io/centos/centos:10
+            build: |
+              dnf -y install xz
+              dnf -y --releasever=10 --installroot="$ROOTFS_DIR" \
+                --setopt=install_weak_deps=0 --repo=baseos install \
+                passwd dnf centos-stream-release vim-minimal util-linux systemd
+              dnf --installroot="$ROOTFS_DIR" config-manager --set-enabled crb
+              dnf -y --installroot="$ROOTFS_DIR" clean all
+
+          - name: centos-9
+            image: quay.io/centos/centos:9
+            build: |
+              dnf -y install xz
+              dnf -y --releasever=9 --installroot="$ROOTFS_DIR" \
+                --setopt=install_weak_deps=0 --repo=baseos install \
+                passwd dnf centos-stream-release vim-minimal util-linux systemd
+              dnf --installroot="$ROOTFS_DIR" config-manager --set-enabled crb
+              dnf -y --installroot="$ROOTFS_DIR" clean all
+
+          - name: debian-13
+            image: debian:sid
+            build: |
+              apt-get -y update
+              apt-get -y install debootstrap xz-utils
+              debootstrap --include=systemd,dbus --variant=minbase trixie "$ROOTFS_DIR"
+              chroot "$ROOTFS_DIR" /bin/bash -c "apt-get clean"
+
+          - name: debian-sid
+            image: debian:sid
+            build: |
+              apt-get -y update
+              apt-get -y install debootstrap xz-utils
+              debootstrap --include=systemd,dbus --variant=minbase sid "$ROOTFS_DIR"
+              chroot "$ROOTFS_DIR" /bin/bash -c "apt-get clean"
+
+          - name: fedora-43
+            image: quay.io/fedora/fedora:43
+            build: |
+              dnf -y --releasever=43 --installroot="$ROOTFS_DIR" \
+                --use-host-config --setopt=install_weak_deps=0 \
+                --repo=fedora --repo=updates install \
+                passwd dnf fedora-release nano util-linux systemd systemd-networkd
+              dnf -y --installroot="$ROOTFS_DIR" clean all
+
+          - name: fedora-rawhide
+            image: quay.io/fedora/fedora:rawhide
+            build: |
+              dnf -y --releasever=rawhide --installroot="$ROOTFS_DIR" \
+                --use-host-config --setopt=install_weak_deps=0 \
+                --repo=fedora --repo=updates install \
+                passwd dnf fedora-release nano util-linux systemd systemd-networkd
+              dnf -y --installroot="$ROOTFS_DIR" clean all
+
+          - name: ubuntu-24.04
+            image: ubuntu:rolling
+            build: |
+              apt-get -y update
+              apt-get -y install debootstrap xz-utils
+              debootstrap --include=systemd,dbus --variant=minbase noble "$ROOTFS_DIR"
+              chroot "$ROOTFS_DIR" /bin/bash -c "apt-get clean"
+
+          - name: ubuntu-25.10
+            image: ubuntu:rolling
+            build: |
+              apt-get -y update
+              apt-get -y install debootstrap xz-utils
+              debootstrap --include=systemd,dbus --variant=minbase questing "$ROOTFS_DIR"
+              chroot "$ROOTFS_DIR" /bin/bash -c "apt-get clean"
+
+    container:
+      image: ${{ matrix.distro.image }}
+
+    env:
+      ROOTFS_DIR: ${{ github.workspace }}/${{ matrix.distro.name }}-rootfs
+      TARBALL: ${{ github.workspace }}/${{ matrix.distro.name }}-rootfs.tar.xz
+
+    steps:
+      - name: Build rootfs
+        run: ${{ matrix.distro.build }}
+
+      - name: Prepare tarball
+        run: tar -C "$ROOTFS_DIR" -cJf "$TARBALL" .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ matrix.distro.name }}-rootfs
+          path: ${{ env.TARBALL }}
+          retention-days: 3
