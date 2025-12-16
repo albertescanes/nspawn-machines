@@ -65,7 +65,7 @@ jobs:
               dnf -y --installroot="$ROOTFS_DIR" clean all
 
           - name: rhel-10
-            image: registry.access.redhat.com/ubi0/ubi:latest
+            image: registry.access.redhat.com/ubi10/ubi:latest
             build: |
               dnf -y install xz
               dnf -y --releasever=10 --installroot="$ROOTFS_DIR" \
