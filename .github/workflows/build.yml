@@ -17,8 +17,8 @@ jobs:
             build: |
               dnf -y install xz
               dnf -y --releasever=10 --installroot="$ROOTFS_DIR" \
-                --setopt=install_weak_deps=0 --repo=baseos install \
-                passwd dnf centos-stream-release vim-minimal util-linux systemd
+                --setopt=install_weak_deps=0 install \
+                passwd dnf redhat-release vim-minimal util-linux systemd
               dnf --installroot="$ROOTFS_DIR" config-manager --set-enabled crb
               dnf -y --installroot="$ROOTFS_DIR" clean all
 
@@ -27,8 +27,8 @@ jobs:
             build: |
               dnf -y install xz
               dnf -y --releasever=9 --installroot="$ROOTFS_DIR" \
-                --setopt=install_weak_deps=0 --repo=baseos install \
-                passwd dnf centos-stream-release vim-minimal util-linux systemd
+                --setopt=install_weak_deps=0 install \
+                passwd dnf redhat-release vim-minimal util-linux systemd
               dnf --installroot="$ROOTFS_DIR" config-manager --set-enabled crb
               dnf -y --installroot="$ROOTFS_DIR" clean all
 
@@ -52,8 +52,7 @@ jobs:
             image: quay.io/fedora/fedora:43
             build: |
               dnf -y --releasever=43 --installroot="$ROOTFS_DIR" \
-                --use-host-config --setopt=install_weak_deps=0 \
-                --repo=fedora --repo=updates install \
+                --use-host-config --setopt=install_weak_deps=0 install \
                 passwd dnf fedora-release nano util-linux systemd systemd-networkd
               dnf -y --installroot="$ROOTFS_DIR" clean all
 
@@ -61,9 +60,28 @@ jobs:
             image: quay.io/fedora/fedora:rawhide
             build: |
               dnf -y --releasever=rawhide --installroot="$ROOTFS_DIR" \
-                --use-host-config --setopt=install_weak_deps=0 \
-                --repo=fedora --repo=updates install \
+                --use-host-config --setopt=install_weak_deps=0 install \
                 passwd dnf fedora-release nano util-linux systemd systemd-networkd
+              dnf -y --installroot="$ROOTFS_DIR" clean all
+
+          - name: rhel-10
+            image: registry.access.redhat.com/ubi0/ubi:latest
+            build: |
+              dnf -y install xz
+              dnf -y --releasever=10 --installroot="$ROOTFS_DIR" \
+                --setopt=install_weak_deps=0 install \
+                passwd dnf redhat-release vim-minimal util-linux systemd
+              cp /etc/yum.repos.d/ubi.repo "$ROOTFS_DIR"/etc/yum.repos.d/
+              dnf -y --installroot="$ROOTFS_DIR" clean all
+
+          - name: rhel-9
+            image: registry.access.redhat.com/ubi9/ubi:latest
+            build: |
+              dnf -y install xz
+              dnf -y --releasever=9 --installroot="$ROOTFS_DIR" \
+                --setopt=install_weak_deps=0 install \
+                passwd dnf redhat-release vim-minimal util-linux systemd
+              cp /etc/yum.repos.d/ubi.repo "$ROOTFS_DIR"/etc/yum.repos.d/
               dnf -y --installroot="$ROOTFS_DIR" clean all
 
           - name: ubuntu-24.04
