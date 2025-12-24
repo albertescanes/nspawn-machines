@@ -64,26 +64,6 @@ jobs:
                 passwd dnf fedora-release nano util-linux systemd systemd-networkd
               dnf -y --installroot="$ROOTFS_DIR" clean all
 
-          - name: rhel-10
-            image: registry.access.redhat.com/ubi10/ubi:latest
-            build: |
-              dnf -y install xz
-              dnf -y --releasever=10 --installroot="$ROOTFS_DIR" \
-                --setopt=install_weak_deps=0 install \
-                passwd dnf redhat-release vim-minimal util-linux systemd
-              cp /etc/yum.repos.d/ubi.repo "$ROOTFS_DIR"/etc/yum.repos.d/
-              dnf -y --installroot="$ROOTFS_DIR" clean all
-
-          - name: rhel-9
-            image: registry.access.redhat.com/ubi9/ubi:latest
-            build: |
-              dnf -y install xz
-              dnf -y --releasever=9 --installroot="$ROOTFS_DIR" \
-                --setopt=install_weak_deps=0 install \
-                passwd dnf redhat-release vim-minimal util-linux systemd
-              cp /etc/yum.repos.d/ubi.repo "$ROOTFS_DIR"/etc/yum.repos.d/
-              dnf -y --installroot="$ROOTFS_DIR" clean all
-
           - name: ubuntu-24.04
             image: ubuntu:rolling
             build: |
