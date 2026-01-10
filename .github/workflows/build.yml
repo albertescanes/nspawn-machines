@@ -30,24 +30,6 @@ jobs:
               dnf --installroot="$ROOTFS_DIR" config-manager --set-enabled crb
               dnf -y --installroot="$ROOTFS_DIR" clean all
 
-          - name: centos-9
-            image: quay.io/centos/centos:9
-            build: |
-              dnf -y install xz
-              dnf -y --releasever=9 --installroot="$ROOTFS_DIR" \
-                --setopt=install_weak_deps=0 install \
-                passwd dnf redhat-release vim-minimal util-linux systemd
-              dnf --installroot="$ROOTFS_DIR" config-manager --set-enabled crb
-              dnf -y --installroot="$ROOTFS_DIR" clean all
-
-          - name: debian-13
-            image: debian:sid
-            build: |
-              apt-get -y update
-              apt-get -y install debootstrap xz-utils
-              debootstrap --include=systemd,dbus --variant=minbase trixie "$ROOTFS_DIR"
-              chroot "$ROOTFS_DIR" /bin/bash -c "apt-get clean"
-
           - name: debian-sid
             image: debian:sid
             build: |
@@ -55,14 +37,6 @@ jobs:
               apt-get -y install debootstrap xz-utils
               debootstrap --include=systemd,dbus --variant=minbase sid "$ROOTFS_DIR"
               chroot "$ROOTFS_DIR" /bin/bash -c "apt-get clean"
-
-          - name: fedora-43
-            image: quay.io/fedora/fedora:43
-            build: |
-              dnf -y --releasever=43 --installroot="$ROOTFS_DIR" \
-                --use-host-config --setopt=install_weak_deps=0 install \
-                passwd dnf fedora-release nano util-linux systemd systemd-networkd
-              dnf -y --installroot="$ROOTFS_DIR" clean all
 
           - name: fedora-rawhide
             image: quay.io/fedora/fedora:rawhide
@@ -72,15 +46,7 @@ jobs:
                 passwd dnf fedora-release nano util-linux systemd systemd-networkd
               dnf -y --installroot="$ROOTFS_DIR" clean all
 
-          - name: ubuntu-24.04
-            image: ubuntu:rolling
-            build: |
-              apt-get -y update
-              apt-get -y install debootstrap xz-utils
-              debootstrap --include=systemd,dbus --variant=minbase noble "$ROOTFS_DIR"
-              chroot "$ROOTFS_DIR" /bin/bash -c "apt-get clean"
-
-          - name: ubuntu-25.10
+          - name: ubuntu-questing
             image: ubuntu:rolling
             build: |
               apt-get -y update
@@ -108,3 +74,29 @@ jobs:
           name: ${{ matrix.distro.name }}-rootfs-${{ matrix.arch }}
           path: ${{ env.TARBALL }}
           retention-days: 3
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build-rootfs
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v7
+        with:
+          merge-multiple: true
+
+      - name: Create releases
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          RELEASE_DATE="$(date -u +'%Y-%m-%d %H:%M UTC')"
+          TAG_TS="$(date -u +'%Y-%m-%d-%H-%M')"
+          sha256sum *.tar.xz > SHA256SUMS
+          gh release create "nightly-$TAG_TS" --title "Nightly build $RELEASE_DATE" *.tar.xz SHA256SUMS
+          gh release delete --cleanup-tag --yes "latest" || true
+          gh release create "latest" --title "Latest nightly build ($RELEASE_DATE)" *.tar.xz SHA256SUMS
