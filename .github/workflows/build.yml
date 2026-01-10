@@ -59,20 +59,20 @@ jobs:
 
     env:
       ROOTFS_DIR: ${{ github.workspace }}/${{ matrix.distro.name }}-${{ matrix.arch }}-rootfs
-      TARBALL: ${{ github.workspace }}/${{ matrix.distro.name }}-${{ matrix.arch }}-rootfs.tar.xz
+      TARBALL: ${{ matrix.distro.name }}-${{ matrix.arch }}-rootfs.tar.xz
 
     steps:
       - name: Build rootfs
         run: ${{ matrix.distro.build }}
 
       - name: Prepare tarball
-        run: tar -C "$ROOTFS_DIR" -cJf "$TARBALL" .
+        run: tar -C "$ROOTFS_DIR" -cJf "$GITHUB_WORKSPACE/$TARBALL" .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: ${{ matrix.distro.name }}-rootfs-${{ matrix.arch }}
-          path: ${{ env.TARBALL }}
+          name: ${{ env.TARBALL }}
+          path: ${{ github.workspace }}/${{ env.TARBALL }}
           retention-days: 3
 
   release:
