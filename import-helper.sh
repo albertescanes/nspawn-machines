@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# ======================
+# import helper script
+# ======================
+
 # Check if machinectl exists
 if ! command -v machinectl >/dev/null 2>&1; then
   echo "Error: 'machinectl' is not installed or not in PATH. Exiting."
@@ -18,7 +22,7 @@ fi
 # Available distributions
 DISTROS=("centos-10" "debian-sid" "fedora-rawhide" "ubuntu-questing")
 
-# Detect arch
+# Detect architecture
 ARCH_UNAME=$(uname -m)
 case "$ARCH_UNAME" in
   x86_64) ARCH="amd64" ;;
@@ -30,7 +34,7 @@ case "$ARCH_UNAME" in
 esac
 
 # Prompt user to select distribution
-echo "Please choose a distro:"
+echo "Please choose a distribution:"
 select DISTRO in "${DISTROS[@]}"; do
   if [[ -n "$DISTRO" ]]; then
     echo "You selected: $DISTRO"
