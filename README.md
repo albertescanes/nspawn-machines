@@ -17,8 +17,7 @@ It will:
 Run:
 
 > [!WARNING]  
-> Be cautious when executing scripts fetched from the Internet.  
-> Always review the script contents before running it, especially when piping directly into `bash`.
+> Always be careful when running scripts from the Internet.
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/albertescanes/nspawn-machines/main/import-helper.sh)
