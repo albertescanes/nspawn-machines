@@ -39,7 +39,6 @@ select DISTRO in "${DISTROS[@]}"; do
   if [[ -n "$DISTRO" ]]; then
     echo "You selected: $DISTRO"
     break
-done < /dev/tty
   else
     echo "Invalid selection, please try again."
   fi
