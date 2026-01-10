@@ -21,7 +21,7 @@ Run:
 > Always review the script contents before running it, especially when piping directly into `bash`.
 
 ```bash
-curl -s -o- https://raw.githubusercontent.com/albertescanes/nspawn-machines/main/import-helper.sh | bash
+bash <(curl -fsSL https://raw.githubusercontent.com/albertescanes/nspawn-machines/main/import-helper.sh)
 ```
 
 ---
