@@ -7,10 +7,18 @@ on:
 
 jobs:
   build-rootfs:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
 
     strategy:
       matrix:
+        arch: [amd64, arm64]
+
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+
         distro:
           - name: centos-10
             image: quay.io/centos/centos:10
@@ -84,8 +92,8 @@ jobs:
       image: ${{ matrix.distro.image }}
 
     env:
-      ROOTFS_DIR: ${{ github.workspace }}/${{ matrix.distro.name }}-rootfs
-      TARBALL: ${{ github.workspace }}/${{ matrix.distro.name }}-rootfs.tar.xz
+      ROOTFS_DIR: ${{ github.workspace }}/${{ matrix.distro.name }}-${{ matrix.arch }}-rootfs
+      TARBALL: ${{ github.workspace }}/${{ matrix.distro.name }}-${{ matrix.arch }}-rootfs.tar.xz
 
     steps:
       - name: Build rootfs
@@ -97,6 +105,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: ${{ matrix.distro.name }}-rootfs
+          name: ${{ matrix.distro.name }}-rootfs-${{ matrix.arch }}
           path: ${{ env.TARBALL }}
           retention-days: 3
