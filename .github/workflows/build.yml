@@ -97,6 +97,5 @@ jobs:
           RELEASE_DATE="$(date -u +'%Y-%m-%d %H:%M UTC')"
           TAG_TS="$(date -u +'%Y-%m-%d-%H-%M')"
           sha256sum *.tar.xz > SHA256SUMS
-          gh release create "nightly-$TAG_TS" --title "Nightly build $RELEASE_DATE" *.tar.xz SHA256SUMS
           gh release delete --cleanup-tag --yes "latest" || true
-          gh release create "latest" --title "Latest nightly build ($RELEASE_DATE)" *.tar.xz SHA256SUMS
+          gh release create "latest" --title "Latest build ($RELEASE_DATE)" *.tar.xz SHA256SUMS
