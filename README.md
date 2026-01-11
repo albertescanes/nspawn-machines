@@ -4,62 +4,20 @@ Minimal rootfs builds for *systemd-nspawn*.
 
 ## Usage
 
-### Recommended: interactive import helper script
+### Import your desired distribution
 
-The easiest way to import a machine is by using the interactive helper script.  
-It will:
-
-- Detect your system architecture automatically
-- Let you choose a distribution interactively
-- Download the appropriate rootfs
-- Import it using `importctl` (or `machinectl` as a fallback)
-
-Run:
+Use the interactive helper script:
 
 > [!WARNING]  
 > Always be careful when running scripts from the Internet.
 
-```bash
+```shell
 bash <(curl -fsSL https://raw.githubusercontent.com/albertescanes/nspawn-machines/main/import-helper.sh)
 ```
 
----
+### Start and enter the machine
 
-### Manual import
-
-If you prefer to do everything manually:
-
-1. Download the desired rootfs tarball from the **latest** release:  
-   https://github.com/albertescanes/nspawn-machines/releases/latest
-
-2. Import the tarball as a machine:
-
-   ```bash
-   importctl -m import-tar <tarball> <machine_name>
-   ```
-
-   (On older systems, you can use `machinectl import-tar` instead.)
-
-3. Start the machine:
-
-   ```bash
-   machinectl start <machine_name>
-   ```
-
-4. Enter the machine:
-
-   ```bash
-   machinectl shell <machine_name>
-   ```
-
-## Available distributions
-
-- `centos-10`
-- `debian-sid`
-- `fedora-rawhide`
-- `ubuntu-questing`
-
-Supported architectures:
-
-- `amd64`
-- `arm64`
+```
+machinectl start <machine_name>
+machinectl shell <machine_name>
+```
