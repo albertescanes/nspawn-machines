@@ -73,7 +73,7 @@ jobs:
         run: tar -C "$ROOTFS_DIR" -cJf "$GITHUB_WORKSPACE/$TARBALL" .
 
       - name: Install nspawn config
-        run: cp "$GITHUB_WORKSPACE/config.nspawn" "$GITHUB_WORKSPACE/$NSPAWN"
+        run: cp "$GITHUB_WORKSPACE/nspawn.ini" "$GITHUB_WORKSPACE/$NSPAWN"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
@@ -104,6 +104,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           RELEASE_DATE="$(date -u +'%Y-%m-%d %H:%M UTC')"
-          sha256sum *.tar.xz > SHA256SUMS
+          sha256sum *.tar.xz *.nspawn > SHA256SUMS
           gh release delete --cleanup-tag --yes latest || true
           gh release create latest --title "Latest build ($RELEASE_DATE)" *.tar.xz *.nspawn SHA256SUMS
