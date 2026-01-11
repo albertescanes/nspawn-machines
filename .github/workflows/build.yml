@@ -62,18 +62,26 @@ jobs:
       TARBALL: ${{ matrix.distro.name }}-${{ matrix.arch }}-rootfs.tar.xz
 
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+
       - name: Build rootfs
         run: ${{ matrix.distro.build }}
 
       - name: Prepare tarball
         run: tar -C "$ROOTFS_DIR" -cJf "$GITHUB_WORKSPACE/$TARBALL" .
 
+      - name: Install nspawn config
+        run: cp "$GITHUB_WORKSPACE/config.nspawn" "$GITHUB_WORKSPACE/$NSPAWN"
+
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: ${{ env.TARBALL }}
-          path: ${{ github.workspace }}/${{ env.TARBALL }}
-          retention-days: 3
+          name: ${{ matrix.distro.name }}-${{ matrix.arch }}
+          path: |
+            ${{ github.workspace }}/${{ env.TARBALL }}
+            ${{ github.workspace }}/${{ env.NSPAWN }}
+          retention-days: 1
 
   release:
     runs-on: ubuntu-latest
@@ -97,4 +105,4 @@ jobs:
           RELEASE_DATE="$(date -u +'%Y-%m-%d %H:%M UTC')"
           sha256sum *.tar.xz > SHA256SUMS
           gh release delete --cleanup-tag --yes latest || true
-          gh release create latest --title "Latest build ($RELEASE_DATE)" *.tar.xz SHA256SUMS
+          gh release create latest --title "Latest build ($RELEASE_DATE)" *.tar.xz *.nspawn SHA256SUMS
