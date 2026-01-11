@@ -66,13 +66,13 @@ jobs:
         run: ${{ matrix.distro.build }}
 
       - name: Prepare tarball
-        run: tar -C "$ROOTFS_DIR" -cJf "$GITHUB_WORKSPACE/$TARBALL" .
+        run: tar -C "$ROOTFS_DIR" -cJf "$TARBALL" .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
           name: ${{ env.TARBALL }}
-          path: ${{ github.workspace }}/${{ env.TARBALL }}
+          path: ${{ env.TARBALL }}
           retention-days: 3
 
   release:
