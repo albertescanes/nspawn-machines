@@ -60,6 +60,7 @@ jobs:
     env:
       ROOTFS_DIR: ${{ github.workspace }}/${{ matrix.distro.name }}-${{ matrix.arch }}-rootfs
       TARBALL: ${{ matrix.distro.name }}-${{ matrix.arch }}-rootfs.tar.xz
+      NSPAWN:  ${{ matrix.distro.name }}-${{ matrix.arch }}-rootfs.nspawn
 
     steps:
       - name: Checkout repo
