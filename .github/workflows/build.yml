@@ -80,8 +80,8 @@ jobs:
         with:
           name: ${{ matrix.distro.name }}-${{ matrix.arch }}
           path: |
-            ${{ github.workspace }}/${{ env.TARBALL }}
-            ${{ github.workspace }}/${{ env.NSPAWN }}
+            ${{ env.TARBALL }}
+            ${{ env.NSPAWN }}
           retention-days: 1
 
   release:
